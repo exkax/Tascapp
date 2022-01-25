@@ -5,7 +5,7 @@ import java.io.Serializable;
 public class News implements Serializable {
 
     private String title;
-    private  long createdAt;
+    private  String createdAt;
 
     public String getTitle() {
         return title;
@@ -15,15 +15,15 @@ public class News implements Serializable {
         this.title = title;
     }
 
-    public long getCreatedAt() {
+    public String getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(long createdAt) {
+    public void setCreatedAt(String createdAt) {
         this.createdAt = createdAt;
     }
 
-    public News(String title, long createdAt) {
+    public News(String title, String createdAt) {
         this.title = title;
         this.createdAt = createdAt;
     }

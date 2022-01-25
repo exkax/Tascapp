@@ -1,5 +1,7 @@
 package kg.geektech.android2.ui.home;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,14 +19,19 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
+import java.util.ArrayList;
+
 import kg.geektech.android2.R;
 import kg.geektech.android2.databinding.FragmentHomeBinding;
 import kg.geektech.android2.models.News;
 
-public class HomeFragment extends Fragment {
+public class HomeFragment extends Fragment  {
 
 
     private FragmentHomeBinding binding;
+    private NewsAdapter adapter = new NewsAdapter();
+
+    private ArrayList<News> list = new ArrayList<>();
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -33,19 +40,19 @@ public class HomeFragment extends Fragment {
         return  binding.getRoot();
     }
 
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        binding = null;
-    }
+
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        binding.fab.setOnClickListener(view1 -> {
-            openFragment();
-        });
+        initListeners();
+        initFragmentResultListener();
+        initRv();
 
+    }
+
+
+    private void initFragmentResultListener() {
         getParentFragmentManager().setFragmentResultListener("rk_news",
                 getViewLifecycleOwner(), new FragmentResultListener() {
                     @Override
@@ -53,9 +60,54 @@ public class HomeFragment extends Fragment {
                     {
                         News news = (News) result.getSerializable("news");
                         Log.e("TAG","Успешно" + news.getTitle());
-                        Toast.makeText(requireContext(),news.getTitle(), Toast.LENGTH_SHORT). show();
+                        list.add(news);
+                        adapter.setNewsList(list);
+                        binding.newsRv.setAdapter(adapter);
+                        initRv();
+
                     }
                 });
+    }
+
+    private void initRv() {
+        adapter = new NewsAdapter();
+        adapter.setOnItemClick(new NewsAdapter.onItemClick() {
+            @Override
+            public void onLongClick(int pos) {
+                newsAlertDialog(pos);
+            }
+
+            @Override
+            public void onClick(int pos) {
+
+            }
+        });
+
+
+    }
+
+    private void newsAlertDialog(int pos) {
+        new AlertDialog.Builder(getContext()).setTitle("Delete?").setMessage("Are you sure?").setNegativeButton("No", null).
+                setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+//                                News news;
+//                                news = adapter.getNews(position);
+                        Toast.makeText(requireContext(), "Delete", Toast.LENGTH_SHORT).show();
+                        adapter.deleteNews(pos);
+
+                        }
+
+                }).show();
+        Toast.makeText(requireContext(), "alosolsal", Toast.LENGTH_SHORT).show();
+    }
+
+    private void initListeners() {
+        binding.fab.setOnClickListener(view1 -> {
+            openFragment();
+        });
+
+
     }
 
     private void openFragment() {
@@ -63,4 +115,5 @@ public class HomeFragment extends Fragment {
                 R.id.nav_host_fragment_activity_main);
         navController.navigate(R.id.newsFragment);
     }
+
 }
