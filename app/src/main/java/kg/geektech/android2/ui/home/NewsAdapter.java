@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import kg.geektech.android2.R;
 import kg.geektech.android2.databinding.ItemNewsBinding;
@@ -33,7 +34,6 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.ViewHolder> {
 
     public void deleteNews(int pos) {
         this.newsList.remove(pos);
-        notifyItemRemoved(pos);
     }
 
     public  News  getNews(int pos){
@@ -58,6 +58,12 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.ViewHolder> {
     @Override
     public int getItemCount() {
         return newsList.size();
+    }
+
+    public void addItems(List<News> list) {
+    this.newsList.addAll(list);
+
+
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {

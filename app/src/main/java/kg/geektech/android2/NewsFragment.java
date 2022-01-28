@@ -55,7 +55,7 @@ public class NewsFragment extends Fragment {
     private void save() {
         Bundle bundle = new Bundle();
         String title = binding.editText.getText().toString();
-
+        App.getInstance().getAppDatabase().newsDao().insert(news);
         if (title.isEmpty()){
             Toast.makeText(requireContext(), "TYPE", Toast.LENGTH_SHORT).show();
 
