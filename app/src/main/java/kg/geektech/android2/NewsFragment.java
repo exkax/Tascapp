@@ -37,34 +37,32 @@ public class NewsFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         binding = FragmentNewsBinding.inflate(inflater, container, false);
-        return  binding.getRoot();    }
+        return binding.getRoot();
+    }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-       initListener();
 
-    }
-
-    private void initListener() {
         binding.btnSave.setOnClickListener(view1 -> {
             save();
         });
+
     }
 
     private void save() {
         Bundle bundle = new Bundle();
-        String title = binding.editText.getText().toString();
-        App.getInstance().getAppDatabase().newsDao().insert(news);
-        if (title.isEmpty()){
+        String title = binding.editText.getText().toString().trim();
+        if (title.isEmpty()) {
             Toast.makeText(requireContext(), "TYPE", Toast.LENGTH_SHORT).show();
 
         }
 
-            long createdAd = System.currentTimeMillis();
-            ZonedDateTime time = Instant.ofEpochMilli(createdAd).atZone(ZoneId.of("Asia/Bishkek"));
-            String format = time.format(DateTimeFormatter.ofPattern("HH:mm dd MMM yyyy"));
-            news = new News(title, format);
+        long createdAd = System.currentTimeMillis();
+        ZonedDateTime time = Instant.ofEpochMilli(createdAd).atZone(ZoneId.of("Asia/Bishkek"));
+        String format = time.format(DateTimeFormatter.ofPattern("HH:mm dd MMM yyyy"));
+        news = new News(title, format);
+        App.getAppDatabase().newsDao().insert(news);
 
         bundle.putSerializable("news", news);
         getParentFragmentManager().setFragmentResult("rk_news", bundle);
@@ -77,12 +75,4 @@ public class NewsFragment extends Fragment {
         navController.navigateUp();
 
     }
-
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        binding = null;
-    }
-
 }

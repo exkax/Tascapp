@@ -36,17 +36,17 @@ public class HomeFragment extends Fragment {
 
 
     private FragmentHomeBinding binding;
-    private NewsAdapter adapter = new NewsAdapter();
+    private NewsAdapter adapter;
     MainActivity mainActivity;
-    private ArrayList<News> list = new ArrayList<>();
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-        List<News> list = App.getInstance().getAppDatabase().newsDao().getAll();
-        adapter.addItems(list);
+        adapter = new NewsAdapter();
+        adapter.addItems(App.getAppDatabase().newsDao().getAll());
     }
+
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -59,70 +59,51 @@ public class HomeFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        initListeners();
-        initFragmentResultListener();
-        initRv();
-
-    }
-
-
-    private void initFragmentResultListener() {
+        binding.fab.setOnClickListener(view1 -> {
+            openFragment();
+        });
         getParentFragmentManager().setFragmentResultListener("rk_news",
                 getViewLifecycleOwner(), new FragmentResultListener() {
                     @Override
                     public void onFragmentResult(@NonNull String requestKey, @NonNull Bundle result) {
                         News news = (News) result.getSerializable("news");
                         Log.e("TAG", "Успешно" + news.getTitle());
-                        list.add(news);
-                        adapter.setNewsList(list);
-                        binding.newsRv.setAdapter(adapter);
-                        initRv();
-
+                        adapter.setNewsList(news);
                     }
                 });
+        initRv();
+
     }
 
     private void initRv() {
-        adapter = new NewsAdapter();
-        adapter.setOnItemClick(new NewsAdapter.onItemClick() {
-            @Override
-            public void onLongClick(int pos) {
-                newsAlertDialog(pos);
-            }
+        binding.newsRv.setAdapter(adapter);
 
+        adapter.setOnItemClick(new NewsAdapter.onItemClick() {
             @Override
             public void onClick(int pos) {
 
             }
+
+            @Override
+            public void onLongClick(int pos) {
+                new AlertDialog.Builder(requireContext()).setTitle("Delete?").setMessage("Are you sure?")
+                        .setNegativeButton("No", null)
+                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                News news = adapter.getNews(pos);
+                                App.getAppDatabase().newsDao().delete(news);
+                                adapter.removeItem(pos);
+                            }
+
+                        })
+                        .show();
+            }
         });
 
 
     }
 
-    private void newsAlertDialog(int pos) {
-        new AlertDialog.Builder(getContext()).setTitle("Delete?").setMessage("Are you sure?")
-
-                .setNegativeButton("No", null).
-                setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-//                                News news;
-//                                news = adapter.getNews(position);
-                        adapter.deleteNews(pos);
-                        adapter.notifyItemRemoved(pos);
-                    }
-
-                }).show();
-        Toast.makeText(requireContext(), "Delete...", Toast.LENGTH_SHORT).show();
-    }
-
-    private void initListeners() {
-        binding.fab.setOnClickListener(view1 -> {
-            openFragment();
-        });
-
-
-    }
 
     private void openFragment() {
         NavController navController = Navigation.findNavController(requireActivity(),
@@ -133,12 +114,17 @@ public class HomeFragment extends Fragment {
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         inflater.inflate(R.menu.home, menu);
+        super.onCreateOptionsMenu(menu, inflater);
     }
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == R.id.action_clear) {
-
+//        if (item.getItemId() == R.id.action_clear) {
+//
+//        }
+        if (item.getItemId() == R.id.action_sort) {
+            adapter.setNewsList(App.getAppDatabase().newsDao().sortAll());
+            binding.newsRv.setAdapter(adapter);
         }
 
         if (item.getItemId() == R.id.action_exit) {
@@ -149,3 +135,4 @@ public class HomeFragment extends Fragment {
 
     }
 }
+

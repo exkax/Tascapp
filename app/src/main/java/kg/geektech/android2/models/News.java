@@ -9,18 +9,22 @@ import java.io.Serializable;
 public class News implements Serializable {
 
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 
-    @PrimaryKey(autoGenerate = true)
-    private int id;
+
+
     private String title;
     private  String createdAt;
+    @PrimaryKey(autoGenerate = true)
+    private long id;
+
+
 
     public String getTitle() {
         return title;

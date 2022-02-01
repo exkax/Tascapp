@@ -1,5 +1,7 @@
 package kg.geektech.android2.ui.home;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,41 +13,46 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.List;
 
+import kg.geektech.android2.App;
 import kg.geektech.android2.R;
 import kg.geektech.android2.databinding.ItemNewsBinding;
 import kg.geektech.android2.models.News;
 
 public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.ViewHolder> {
 
-    private ArrayList<News> newsList = new ArrayList<>();
-
+    private List<News> newsList = new ArrayList<>();
     private onItemClick onItemClick;
     private ItemNewsBinding binding;
-
-
+    private News news;
 
     public void setOnItemClick(onItemClick onItemClick) {
         this.onItemClick = onItemClick;
     }
 
-    public void setNewsList(ArrayList<News> newsL) {
-        this.newsList = newsL;
+    public void setNewsList(News news) {
+        newsList.add(news);
+        notifyItemInserted(newsList.size());
     }
 
-    public void deleteNews(int pos) {
-        this.newsList.remove(pos);
-    }
-
-    public  News  getNews(int pos){
+    public News getNews(int pos) {
         return newsList.get(pos);
+    }
+    public void removeItem(int pos) {
+        newsList.remove(pos);
+        notifyItemRemoved(pos);
+    }
+
+    public void setNewsList(List<News> list) {
+        this.newsList = list;
+        notifyDataSetChanged();
     }
 
 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        binding = ItemNewsBinding.inflate(LayoutInflater.from(parent.getContext()),parent,
-        false);
+        binding = ItemNewsBinding.inflate(LayoutInflater.from(parent.getContext()), parent,
+                false);
         return new ViewHolder(binding);
     }
 
@@ -61,8 +68,8 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.ViewHolder> {
     }
 
     public void addItems(List<News> list) {
-    this.newsList.addAll(list);
-
+        this.newsList = list;
+        notifyDataSetChanged();
 
     }
 
@@ -71,38 +78,27 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.ViewHolder> {
 
         public ViewHolder(@NonNull ItemNewsBinding itemView) {
             super(itemView.getRoot());
-            initListeners();
-
-
+            itemView.getRoot().setOnClickListener(v -> {
+                onItemClick.onClick(getAdapterPosition());
+            });
             itemView.getRoot().setOnLongClickListener(v -> {
                 onItemClick.onLongClick(getAdapterPosition());
                 return true;
-            });
-
-            itemView.getRoot().setOnClickListener(v -> {
-                onItemClick.onClick(getAdapterPosition());
             });
 
         }
 
 
         public void onBind(News news) {
-             binding.titleTv.setText(news.getTitle());
-             binding.dateTv.setText(news.getCreatedAt());
+            binding.titleTv.setText(news.getTitle());
+            binding.dateTv.setText(news.getCreatedAt());
         }
-        private void initListeners() {
-            binding.getRoot().setOnLongClickListener(view ->
-                    true);binding.getRoot().setOnClickListener (v -> {
 
-            });
-
-        }
     }
 
 
-    public interface onItemClick{
+    public interface onItemClick {
         void onClick(int pos);
         void onLongClick(int pos);
-
     }
 }
